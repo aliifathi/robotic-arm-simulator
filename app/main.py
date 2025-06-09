@@ -132,3 +132,10 @@ def calculate_distance_error(x, y, theta1, theta2):
     end_effector_y = joint1_y + L2 * np.sin(theta1_rad + theta2_rad)
     error = np.sqrt((x - end_effector_x)**2 + (y - end_effector_y)**2)
     return round(error, 2)
+
+
+# Route to render 3D simulation view
+@app.get("/view-3d", response_class=HTMLResponse)
+async def view_3d_page(request: Request):
+    return templates.TemplateResponse("form_3d.html", {"request": request})
+
