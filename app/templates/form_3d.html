@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Robotic Arm Simulation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 6px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    X: <input type="number" id="x" value="50" />
+    Y: <input type="number" id="y" value="50" />
+    <button onclick="plotArm()">Plot</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/controls/OrbitControls.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    camera.position.set(0, 0, 250);
+    camera.lookAt(0, 0, 0);
+
+    // Responsive
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // Lighting
+    const light = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(light);
+
+    // Grid box (floor, side, back)
+    const grid = new THREE.GridHelper(300, 30, 0x444444, 0x444444);
+    grid.position.y = -50;
+    scene.add(grid);
+
+    // Arm
+    const armMaterial = new THREE.MeshBasicMaterial({ color: 0xffa500 });
+    const armGeometry = new THREE.BoxGeometry(10, 60, 10);
+    const link1 = new THREE.Mesh(armGeometry, armMaterial);
+    const link2 = new THREE.Mesh(armGeometry, armMaterial);
+    scene.add(link1);
+    scene.add(link2);
+
+    // Target
+    const targetSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(4, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xff4444 })
+    );
+    scene.add(targetSphere);
+
+    function plotArm() {
+      const x = parseFloat(document.getElementById("x").value);
+      const y = parseFloat(document.getElementById("y").value);
+
+      const L1 = 60;
+      const L2 = 60;
+      const dist = Math.sqrt(x * x + y * y);
+
+      let theta2 = Math.acos(Math.min(Math.max((x * x + y * y - L1 * L1 - L2 * L2) / (2 * L1 * L2), -1), 1));
+      let theta1 = Math.atan2(y, x) - Math.atan2(L2 * Math.sin(theta2), L1 + L2 * Math.cos(theta2));
+
+      const joint1 = new THREE.Vector3(L1 * Math.cos(theta1), L1 * Math.sin(theta1), 0);
+      const joint2 = new THREE.Vector3(
+        joint1.x + L2 * Math.cos(theta1 + theta2),
+        joint1.y + L2 * Math.sin(theta1 + theta2),
+        0
+      );
+
+      link1.position.set(joint1.x / 2, joint1.y / 2, 0);
+      link1.rotation.z = theta1;
+
+      link2.position.set((joint1.x + joint2.x) / 2, (joint1.y + joint2.y) / 2, 0);
+      link2.rotation.z = theta1 + theta2;
+
+      targetSphere.position.set(x, y, 0);
+    }
+
+    plotArm();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

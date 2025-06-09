@@ -1,38 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Robotic Arm Inverse Kinematics</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 2em; }
-        form { margin-bottom: 1em; }
-        label { display: inline-block; width: 80px; }
-        .result {
-            margin-top: 1em;
-            padding: 1em;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
         }
+
+        /* Animated Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(#000000 30%, #0a0a0a 100%);
+        }
+
+        .floating-arm {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            width: 600px;
+            opacity: 0.25;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px #222);
+        }
+
+        @keyframes float {
+            0%   { transform: translate(-50%, -50%) rotateZ(0deg) scale(1); }
+            50%  { transform: translate(-50%, -53%) rotateZ(2deg) scale(1.03); }
+            100% { transform: translate(-50%, -50%) rotateZ(0deg) scale(1); }
+        }
+
+        /* Foreground Content */
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 750px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 25px 35px;
+            border-radius: 14px;
+            box-shadow: 0 0 18px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a4d80;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100px;
+            padding: 6px;
+            margin: 5px 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #005fa3;
+        }
+
+        .result {
+            margin-top: 20px;
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
         .result h3 {
-            margin-top: 0;
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
             padding-bottom: 5px;
         }
-        .result p {
-            margin: 6px 0;
+
+        .result img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .view-link {
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .view-link a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+
+        .view-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+
+<!-- Floating Background -->
+<div class="background">
+    <img src="/static/images/robotic_arm.jpg" alt="Robotic Arm" class="floating-arm">
+</div>
+
+<!-- Main UI -->
+<div class="content">
     <h1>Robotic Arm Angle Calculator</h1>
+
     <form method="post" action="/ik">
         <label for="x">X:</label>
         <input type="number" name="x" step="any" required>
-        <br><br>
         <label for="y">Y:</label>
         <input type="number" name="y" step="any" required>
-        <br><br>
         <button type="submit">Calculate</button>
     </form>
 
@@ -53,10 +155,14 @@
     {% if image_url %}
         <div class="result">
             <h3>Visualization</h3>
-            <img src="{{ image_url }}" alt="Robotic Arm Plot" width="500">
+            <img src="{{ image_url }}" alt="Robotic Arm Plot">
         </div>
     {% endif %}
+
+    <div class="view-link">
+        <a href="/view-3d" target="_blank">View 3D Simulation</a>
+    </div>
+</div>
+
 </body>
 </html>
-<a href="/view-3d" target="_blank">View 3D Simulation</a>
-

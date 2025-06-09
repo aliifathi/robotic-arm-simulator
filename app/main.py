@@ -86,7 +86,7 @@ async def handle_form(request: Request, x: float = Form(...), y: float = Form(..
     # Plot and save image
     fig, ax = plt.subplots()
     ax.plot([0, joint1[0], joint2[0]], [0, joint1[1], joint2[1]], marker='o', linewidth=4)
-    ax.scatter(x, y, color='red', label='Target')
+    ax.scatter(x, y, color='red', s=80, edgecolor='black', zorder=5, label='Target')
     ax.set_title("Robotic Arm Visualization")
     ax.axis('equal')
     ax.grid(True)
